@@ -20,19 +20,20 @@ export default function TarjetaResumen({
   return (
     <Card
       sx={{
-        p: 2.5,
+        p: { xs: 2, sm: 2.5 },
         height: "100%",
         bgcolor: destacada ? "#FCF5E3" : "background.paper",
         borderColor: destacada ? "#F7E7BC" : "divider",
       }}
     >
       <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-        <Box>
+        <Box sx={{ minWidth: 0 }}>
           <Typography
             sx={{
-              fontSize: 9.5,
+              fontSize: { xs: 9, sm: 9.5 },
               fontWeight: 700,
-              letterSpacing: 1.6,
+              letterSpacing: 1.4,
+              lineHeight: 1.3,
               color: destacada ? "secondary.dark" : "#A08663",
             }}
           >
@@ -41,17 +42,23 @@ export default function TarjetaResumen({
 
           <Typography
             sx={{
-              fontSize: 34,
+              fontSize: { xs: 28, sm: 34 },
               fontWeight: 700,
               lineHeight: 1.15,
-              mt: 1,
+              mt: { xs: 0.5, sm: 1 },
               color: destacada ? "secondary.dark" : "primary.main",
             }}
           >
             {valor}
           </Typography>
 
-          <Typography sx={{ fontSize: 11.5, color: "text.secondary", mt: 1.5 }}>
+          <Typography
+            sx={{
+              fontSize: { xs: 11, sm: 11.5 },
+              color: "text.secondary",
+              mt: { xs: 0.5, sm: 1.5 },
+            }}
+          >
             {detalle}
           </Typography>
         </Box>

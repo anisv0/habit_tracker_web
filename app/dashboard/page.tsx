@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
-import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import LayoutApp from "../components/LayoutApp";
 import TarjetaResumen from "../components/TarjetaResumen";
 import FilaHabito from "../components/FilaHabito";
@@ -88,7 +87,6 @@ export default function DashboardPage() {
   }
 
   const maximo = Math.max(1, ...(resumen?.last7Days ?? []).map((d) => d.completed));
-  const diferenciaMes = (resumen?.percentMonth ?? 0) - (resumen?.percentPrevMonth ?? 0);
   const primerNombre = usuario?.name.split(" ")[0] ?? "";
 
   return (
@@ -136,11 +134,10 @@ export default function DashboardPage() {
         sx={{
           display: "grid",
           gridTemplateColumns: {
-            xs: "1fr",
-            sm: "repeat(2, 1fr)",
+            xs: "repeat(2, 1fr)",
             lg: "repeat(4, 1fr)",
           },
-          gap: 2.5,
+          gap: { xs: 1.5, sm: 2.5 },
           mb: 3,
         }}
       >
@@ -328,55 +325,6 @@ export default function DashboardPage() {
             />
           </Card>
 
-          <Card sx={{ p: 3 }}>
-            <Typography variant="h5" sx={{ color: "primary.main", fontSize: 15 }}>
-              Cumplimiento del mes
-            </Typography>
-
-            <Stack direction="row" spacing={2} sx={{ alignItems: "center", mt: 1.5 }}>
-              <Typography
-                sx={{
-                  fontSize: 38,
-                  fontWeight: 700,
-                  lineHeight: 1.1,
-                  color: "secondary.dark",
-                }}
-              >
-                {resumen?.percentMonth ?? 0}%
-              </Typography>
-
-              {diferenciaMes !== 0 && (
-                <Chip
-                  icon={
-                    <TrendingUpRoundedIcon
-                      sx={{
-                        fontSize: 15,
-                        transform: diferenciaMes < 0 ? "scaleY(-1)" : "none",
-                      }}
-                    />
-                  }
-                  label={`${diferenciaMes > 0 ? "+" : ""}${diferenciaMes}%`}
-                  size="small"
-                  sx={{
-                    bgcolor: "#FCF5E3",
-                    color: "secondary.dark",
-                    fontWeight: 700,
-                    fontSize: 11.5,
-                    "& .MuiChip-icon": { color: "secondary.dark" },
-                  }}
-                />
-              )}
-            </Stack>
-
-            <Typography
-              color="text.secondary"
-              sx={{ fontSize: 11.5, lineHeight: 1.45, mt: 2 }}
-            >
-              {diferenciaMes >= 0
-                ? "Vas mejor que el mes pasado. Fallar un día no rompe la tendencia."
-                : "Este mes vas más bajo que el anterior. Marcar uno hoy ya cambia el número."}
-            </Typography>
-          </Card>
         </Stack>
       </Box>
     </LayoutApp>

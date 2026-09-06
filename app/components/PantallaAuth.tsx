@@ -33,7 +33,7 @@ export default function PantallaAuth({ titulo, pie, lateral, children }: Props) 
             width: "100%",
             maxWidth: { xs: 340, sm: 400 },
             px: { xs: 2, sm: 3 },
-            pb: { xs: 4, md: 5 },
+            pb: 5,
             mt: { xs: -3, md: 0 },
             position: "relative",
             zIndex: 1,

@@ -40,15 +40,23 @@ export default function ListaBeneficios() {
                 flexShrink: 0,
               }}
             >
-              <CheckRoundedIcon sx={{ fontSize: 18, color: "primary.dark" }} />
+              <CheckRoundedIcon
+                sx={{ fontSize: 18, color: "primary.dark" }}
+              />
             </Box>
             <Box>
               <Typography
-                sx={{ color: "background.paper", fontWeight: 700, fontSize: 16.5 }}
+                sx={{
+                  color: "background.paper",
+                  fontWeight: 700,
+                  fontSize: 16.5,
+                }}
               >
                 {beneficio.titulo}
               </Typography>
-              <Typography sx={{ color: "#C2A79E", fontSize: 13 }}>
+              <Typography
+                sx={{ color: "#C2A79E", fontSize: 13 }}
+              >
                 {beneficio.detalle}
               </Typography>
             </Box>
@@ -57,7 +65,12 @@ export default function ListaBeneficios() {
       </Stack>
 
       <Typography
-        sx={{ color: "secondary.light", fontSize: 13, fontWeight: 500, mt: 6 }}
+        sx={{
+          color: "secondary.light",
+          fontSize: 13,
+          fontWeight: 500,
+          mt: 6,
+        }}
       >
         Sin tarjeta, sin límite de hábitos.
       </Typography>
