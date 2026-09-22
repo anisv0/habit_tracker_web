@@ -40,7 +40,11 @@ function Contenido() {
   const [filtro, setFiltro] = useState("Todos");
   const [porBorrar, setPorBorrar] = useState<Habito | null>(null);
   const [borrando, setBorrando] = useState(false);
-  const [aviso, setAviso] = useState("");
+  const [aviso, setAviso] = useState(() => {
+    if (parametros.get("creado")) return "Hábito creado";
+    if (parametros.get("editado")) return "Cambios guardados";
+    return "";
+  });
 
   const cargar = useCallback(async () => {
     try {
@@ -56,13 +60,12 @@ function Contenido() {
   }, []);
 
   useEffect(() => {
-    void cargar();
-  }, [cargar]);
+    async function iniciar() {
+      await cargar();
+    }
 
-  useEffect(() => {
-    if (parametros.get("creado")) setAviso("Hábito creado");
-    if (parametros.get("editado")) setAviso("Cambios guardados");
-  }, [parametros]);
+    void iniciar();
+  }, [cargar]);
 
   const categorias = useMemo(() => {
     const encontradas = habitos

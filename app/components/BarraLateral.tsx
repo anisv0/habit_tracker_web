@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import SpaceDashboardRoundedIcon from "@mui/icons-material/SpaceDashboardRounded";
 import ChecklistRoundedIcon from "@mui/icons-material/ChecklistRounded";
+import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import { useAuth } from "../lib/auth";
@@ -26,6 +27,7 @@ export const ANCHO_BARRA = 260;
 const enlaces = [
   { href: "/dashboard", texto: "Dashboard", Icono: SpaceDashboardRoundedIcon },
   { href: "/habitos", texto: "Hábitos", Icono: ChecklistRoundedIcon },
+  { href: "/estadisticas", texto: "Estadísticas", Icono: BarChartRoundedIcon },
 ];
 
 function Contenido({ alNavegar }: { alNavegar?: () => void }) {

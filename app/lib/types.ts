@@ -18,6 +18,7 @@ export type Habito = {
   completedToday: boolean;
   streak: number;
   last7Days: boolean[];
+  last30Days: boolean[];
 };
 
 export type Registro = {
@@ -38,6 +39,7 @@ export type Resumen = {
   percentMonth: number;
   percentPrevMonth: number;
   last7Days: { date: string; completed: number }[];
+  last30Days: { date: string; completed: number }[];
 };
 
 export type RespuestaAuth = {

@@ -17,6 +17,7 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
 import LayoutApp from "../components/LayoutApp";
 import TarjetaResumen from "../components/TarjetaResumen";
+import TarjetaAvance from "../components/TarjetaAvance";
 import FilaHabito from "../components/FilaHabito";
 import { api, ApiError } from "../lib/api";
 import { useAuth } from "../lib/auth";
@@ -52,7 +53,11 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    void cargar();
+    async function iniciar() {
+      await cargar();
+    }
+
+    void iniciar();
   }, [cargar]);
 
   async function alternar(habito: Habito) {
@@ -325,6 +330,12 @@ export default function DashboardPage() {
             />
           </Card>
 
+          <TarjetaAvance
+            percentToday={resumen?.percentToday ?? 0}
+            percentWeek={resumen?.percentWeek ?? 0}
+            percentMonth={resumen?.percentMonth ?? 0}
+            percentPrevMonth={resumen?.percentPrevMonth ?? 0}
+          />
         </Stack>
       </Box>
     </LayoutApp>

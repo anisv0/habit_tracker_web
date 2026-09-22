@@ -11,7 +11,7 @@ export class ApiError extends Error {
 
 function obtenerToken() {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("token");
+  return sessionStorage.getItem("token");
 }
 
 async function peticion<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {

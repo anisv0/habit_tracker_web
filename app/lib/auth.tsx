@@ -21,22 +21,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    async function restaurarSesion() {
+      const token = sessionStorage.getItem("token");
 
-    if (!token) {
-      setCargando(false);
-      return;
+      if (!token) {
+        setCargando(false);
+        return;
+      }
+
+      try {
+        setUsuario(await api.get<Usuario>("/auth/me"));
+      } catch {
+        sessionStorage.removeItem("token");
+      } finally {
+        setCargando(false);
+      }
     }
 
-    api
-      .get<Usuario>("/auth/me")
-      .then(setUsuario)
-      .catch(() => localStorage.removeItem("token"))
-      .finally(() => setCargando(false));
+    void restaurarSesion();
   }, []);
 
   function guardarSesion(respuesta: RespuestaAuth) {
-    localStorage.setItem("token", respuesta.access_token);
+    sessionStorage.setItem("token", respuesta.access_token);
     setUsuario(respuesta.user);
   }
 
@@ -60,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   function logout() {
-    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
     setUsuario(null);
     router.push("/login");
   }

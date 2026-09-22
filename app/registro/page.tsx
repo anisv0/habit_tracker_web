@@ -75,20 +75,20 @@ export default function RegistroPage() {
       pie="Solo tres datos. Ninguna configuración antes de empezar."
       lateral={<ListaBeneficios />}
     >
-      <Card sx={{ width: "100%", p: { xs: 2.5, sm: 4 } }}>
+      <Card sx={{ width: "100%", p: { xs: 3, sm: 5 } }}>
         <Typography
           variant="h2"
-          sx={{ color: "primary.main", fontSize: { xs: 24, sm: 32 } }}
+          sx={{ color: "primary.main", fontSize: { xs: 28, sm: 34 } }}
         >
           Crear cuenta
         </Typography>
 
-        <Typography color="text.secondary" sx={{ fontSize: { xs: 13.5, sm: 15 }, mt: 1 }}>
+        <Typography color="text.secondary" sx={{ fontSize: 15, mt: 1 }}>
           Dos minutos y ya estás marcando lo de hoy.
         </Typography>
 
-        <Box component="form" onSubmit={enviar} noValidate sx={{ mt: { xs: 2.5, sm: 3.5 } }}>
-          <Stack spacing={{ xs: 2, sm: 2.5 }}>
+        <Box component="form" onSubmit={enviar} noValidate sx={{ mt: 4 }}>
+          <Stack spacing={2.5}>
             {errorGeneral && <Alert severity="error">{errorGeneral}</Alert>}
 
             <TextField
@@ -152,7 +152,7 @@ export default function RegistroPage() {
               size="large"
               disabled={enviando}
               endIcon={!enviando && <ArrowForwardRoundedIcon />}
-              sx={{ height: { xs: 50, sm: 56 }, fontSize: { xs: 15.5, sm: 17 } }}
+              sx={{ height: 58, fontSize: 17 }}
             >
               {enviando ? (
                 <CircularProgress size={24} sx={{ color: "background.paper" }} />
@@ -163,7 +163,7 @@ export default function RegistroPage() {
           </Stack>
         </Box>
 
-        <Typography color="text.secondary" align="center" sx={{ fontSize: { xs: 14, sm: 15 }, mt: { xs: 2.5, sm: 3.5 } }}>
+        <Typography color="text.secondary" align="center" sx={{ fontSize: 15, mt: 4 }}>
           ¿Ya tienes cuenta?{" "}
           <Link
             component={NextLink}

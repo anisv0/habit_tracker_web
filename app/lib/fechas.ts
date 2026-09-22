@@ -22,3 +22,10 @@ export function inicialDia(clave: string) {
   const dia = new Date(`${clave}T12:00:00.000Z`).getUTCDay();
   return ["D", "L", "M", "M", "J", "V", "S"][dia];
 }
+
+export function fechaCorta(clave: string) {
+  return new Intl.DateTimeFormat("es", {
+    day: "numeric",
+    month: "short",
+  }).format(new Date(`${clave}T12:00:00.000Z`));
+}
