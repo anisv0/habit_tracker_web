@@ -15,10 +15,11 @@ import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartm
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import LayoutApp from "../components/LayoutApp";
 import TarjetaResumen from "../components/TarjetaResumen";
-import GraficaMes from "../components/GraficaMes";
+import TendenciaCumplimiento from "../components/TendenciaCumplimiento";
 import SemanaTipica from "../components/SemanaTipica";
 import RankingHabitos from "../components/RankingHabitos";
 import { api, ApiError } from "../lib/api";
+import { claveHoy } from "../lib/fechas";
 import type { Habito, Resumen } from "../lib/types";
 
 export default function EstadisticasPage() {
@@ -64,7 +65,11 @@ export default function EstadisticasPage() {
     );
   }
 
+  const hoy = claveHoy();
   const activos = habitos.filter((habito) => habito.active).length;
+  const finalizados = habitos.filter(
+    (habito) => habito.endDate !== null && habito.endDate.slice(0, 10) < hoy,
+  ).length;
   const diferencia = (resumen?.percentMonth ?? 0) - (resumen?.percentPrevMonth ?? 0);
 
   return (
@@ -109,20 +114,25 @@ export default function EstadisticasPage() {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: { xs: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" },
-              gap: { xs: 1.5, sm: 2.5 },
+              gridTemplateColumns: { xs: "repeat(2, 1fr)", lg: "repeat(5, 1fr)" },
+              gap: { xs: 1.5, sm: 2 },
               mb: 2.5,
             }}
           >
             <TarjetaResumen
               etiqueta="Total de hábitos"
               valor={habitos.length}
-              detalle={`${activos} activos`}
+              detalle="creados en total"
             />
             <TarjetaResumen
-              etiqueta="Completados hoy"
-              valor={resumen?.completedToday ?? 0}
-              detalle={`${resumen?.pendingToday ?? 0} pendientes`}
+              etiqueta="Hábitos activos"
+              valor={activos}
+              detalle={`${habitos.length - activos} en pausa`}
+            />
+            <TarjetaResumen
+              etiqueta="Finalizados"
+              valor={finalizados}
+              detalle="con fecha de fin cumplida"
             />
             <TarjetaResumen
               etiqueta="Días consecutivos"
@@ -148,7 +158,7 @@ export default function EstadisticasPage() {
           </Box>
 
           <Box sx={{ mb: 2.5 }}>
-            <GraficaMes dias={resumen?.last30Days ?? []} />
+            <TendenciaCumplimiento semanas={resumen?.weeklyTrend ?? []} />
           </Box>
 
           <Box

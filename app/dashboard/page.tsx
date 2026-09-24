@@ -15,9 +15,11 @@ import {
 } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
+import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import LayoutApp from "../components/LayoutApp";
 import TarjetaResumen from "../components/TarjetaResumen";
 import TarjetaAvance from "../components/TarjetaAvance";
+import GraficaMes from "../components/GraficaMes";
 import FilaHabito from "../components/FilaHabito";
 import { api, ApiError } from "../lib/api";
 import { useAuth } from "../lib/auth";
@@ -93,6 +95,8 @@ export default function DashboardPage() {
 
   const maximo = Math.max(1, ...(resumen?.last7Days ?? []).map((d) => d.completed));
   const primerNombre = usuario?.name.split(" ")[0] ?? "";
+  const activos = habitos.filter((habito) => habito.active);
+  const pausados = habitos.length - activos.length;
 
   return (
     <LayoutApp>
@@ -140,30 +144,40 @@ export default function DashboardPage() {
           display: "grid",
           gridTemplateColumns: {
             xs: "repeat(2, 1fr)",
-            lg: "repeat(4, 1fr)",
+            lg: "repeat(5, 1fr)",
           },
-          gap: { xs: 1.5, sm: 2.5 },
+          gap: { xs: 1.5, sm: 2 },
           mb: 3,
         }}
       >
         <TarjetaResumen
           etiqueta="Hábitos activos"
           valor={resumen?.totalHabits ?? 0}
-          detalle={`de ${resumen?.totalHabits ?? 0} creados`}
+          detalle="en seguimiento"
         />
         <TarjetaResumen
           etiqueta="Completados hoy"
           valor={resumen?.completedToday ?? 0}
-          detalle={`de ${resumen?.totalHabits ?? 0} de hoy`}
+          detalle={`${resumen?.pendingToday ?? 0} pendientes`}
         />
         <TarjetaResumen
           etiqueta="Racha actual"
           valor={resumen?.currentStreak ?? 0}
-          detalle={`días · mejor: ${resumen?.bestStreak ?? 0}`}
+          detalle="días seguidos"
           destacada
           icono={
             <LocalFireDepartmentRoundedIcon
               sx={{ fontSize: 24, color: "secondary.dark" }}
+            />
+          }
+        />
+        <TarjetaResumen
+          etiqueta="Mejor racha"
+          valor={resumen?.bestStreak ?? 0}
+          detalle="tu récord"
+          icono={
+            <EmojiEventsRoundedIcon
+              sx={{ fontSize: 22, color: "secondary.dark" }}
             />
           }
         />
@@ -194,6 +208,8 @@ export default function DashboardPage() {
               </Typography>
               <Typography color="text.secondary" sx={{ fontSize: 12.5, mt: 0.5 }}>
                 Marca lo que ya cumpliste. Un clic sobre el círculo.
+                {pausados > 0 &&
+                  ` · ${pausados} ${pausados === 1 ? "pausado" : "pausados"}`}
               </Typography>
             </Box>
 
@@ -209,26 +225,30 @@ export default function DashboardPage() {
             />
           </Stack>
 
-          {habitos.length === 0 ? (
+          {activos.length === 0 ? (
             <Box sx={{ py: 6, textAlign: "center" }}>
               <Typography sx={{ fontWeight: 700, color: "primary.main" }}>
-                Todavía no tienes hábitos
+                {habitos.length === 0
+                  ? "Todavía no tienes hábitos"
+                  : "Todos tus hábitos están en pausa"}
               </Typography>
               <Typography color="text.secondary" sx={{ fontSize: 14, mt: 1, mb: 3 }}>
-                Crea el primero y empieza a marcar desde hoy.
+                {habitos.length === 0
+                  ? "Crea el primero y empieza a marcar desde hoy."
+                  : "Reactiva alguno desde Hábitos para volver a marcarlo."}
               </Typography>
               <Button
                 component={NextLink}
-                href="/habitos/nuevo"
+                href={habitos.length === 0 ? "/habitos/nuevo" : "/habitos"}
                 variant="contained"
-                startIcon={<AddRoundedIcon />}
+                startIcon={habitos.length === 0 ? <AddRoundedIcon /> : undefined}
               >
-                Crear hábito
+                {habitos.length === 0 ? "Crear hábito" : "Ir a Hábitos"}
               </Button>
             </Box>
           ) : (
             <Stack spacing={2}>
-              {habitos.map((habito) => (
+              {activos.map((habito) => (
                 <FilaHabito
                   key={habito.id}
                   habito={habito}
@@ -254,42 +274,50 @@ export default function DashboardPage() {
               spacing={1}
               sx={{ justifyContent: "space-between" }}
             >
-              {(resumen?.last7Days ?? []).map((dia) => (
-                <Box key={dia.date} sx={{ textAlign: "center", flex: 1 }}>
-                  <Box
-                    sx={{
-                      height: 130,
-                      borderRadius: 2.5,
-                      bgcolor: "background.default",
-                      display: "flex",
-                      alignItems: "flex-end",
-                      overflow: "hidden",
-                    }}
-                  >
+              {(resumen?.last7Days ?? []).map((dia, indice, todos) => {
+                const esHoy = indice === todos.length - 1;
+
+                return (
+                  <Box key={dia.date} sx={{ textAlign: "center", flex: 1 }}>
                     <Box
                       sx={{
-                        width: "100%",
-                        height: `${(dia.completed / maximo) * 100}%`,
-                        minHeight: dia.completed > 0 ? 8 : 0,
+                        height: 130,
                         borderRadius: 2.5,
-                        bgcolor:
-                          dia.completed === maximo ? "secondary.main" : "#F7E7BC",
-                        transition: "height .3s",
+                        bgcolor: "background.default",
+                        display: "flex",
+                        alignItems: "flex-end",
+                        overflow: "hidden",
                       }}
-                    />
+                    >
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: `${(dia.completed / maximo) * 100}%`,
+                          minHeight: dia.completed > 0 ? 8 : 0,
+                          borderRadius: "10px 10px 0 0",
+                          bgcolor: esHoy ? "secondary.main" : "#F7E7BC",
+                          transition: "height .3s",
+                        }}
+                      />
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: 11.5,
+                        fontWeight: esHoy ? 700 : 500,
+                        mt: 1,
+                        color: esHoy ? "secondary.dark" : "text.secondary",
+                      }}
+                    >
+                      {inicialDia(dia.date)}
+                    </Typography>
+                    <Typography
+                      sx={{ fontSize: 11, fontWeight: 700, color: "secondary.dark" }}
+                    >
+                      {dia.completed}
+                    </Typography>
                   </Box>
-                  <Typography
-                    sx={{ fontSize: 11.5, fontWeight: 500, mt: 1, color: "text.secondary" }}
-                  >
-                    {inicialDia(dia.date)}
-                  </Typography>
-                  <Typography
-                    sx={{ fontSize: 11, fontWeight: 700, color: "secondary.dark" }}
-                  >
-                    {dia.completed}
-                  </Typography>
-                </Box>
-              ))}
+                );
+              })}
             </Stack>
           </Card>
 
@@ -337,6 +365,10 @@ export default function DashboardPage() {
             percentPrevMonth={resumen?.percentPrevMonth ?? 0}
           />
         </Stack>
+      </Box>
+
+      <Box sx={{ mt: 2.5 }}>
+        <GraficaMes dias={resumen?.last30Days ?? []} />
       </Box>
     </LayoutApp>
   );

@@ -29,6 +29,13 @@ import { api, ApiError } from "../lib/api";
 import { claveHoy } from "../lib/fechas";
 import type { Habito } from "../lib/types";
 
+const prioridades = [
+  { valor: "Todas", texto: "Todas" },
+  { valor: "alta", texto: "Alta" },
+  { valor: "media", texto: "Media" },
+  { valor: "baja", texto: "Baja" },
+];
+
 function Contenido() {
   const parametros = useSearchParams();
 
@@ -37,7 +44,7 @@ function Contenido() {
   const [error, setError] = useState("");
   const [ocupado, setOcupado] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
-  const [filtro, setFiltro] = useState("Todos");
+  const [filtro, setFiltro] = useState("Todas");
   const [porBorrar, setPorBorrar] = useState<Habito | null>(null);
   const [borrando, setBorrando] = useState(false);
   const [aviso, setAviso] = useState(() => {
@@ -67,20 +74,13 @@ function Contenido() {
     void iniciar();
   }, [cargar]);
 
-  const categorias = useMemo(() => {
-    const encontradas = habitos
-      .map((h) => h.category)
-      .filter((c): c is string => Boolean(c));
-
-    return ["Todos", ...Array.from(new Set(encontradas))];
-  }, [habitos]);
-
   const visibles = useMemo(() => {
     const texto = busqueda.trim().toLowerCase();
 
     return habitos.filter((h) => {
       const coincideTexto = !texto || h.name.toLowerCase().includes(texto);
-      const coincideFiltro = filtro === "Todos" || h.category === filtro;
+      const prioridad = h.priority ?? "media";
+      const coincideFiltro = filtro === "Todas" || prioridad === filtro;
       return coincideTexto && coincideFiltro;
     });
   }, [habitos, busqueda, filtro]);
@@ -99,6 +99,23 @@ function Contenido() {
     } catch (e) {
       setError(
         e instanceof ApiError ? e.message : "No se pudo actualizar el hábito",
+      );
+    } finally {
+      setOcupado(null);
+    }
+  }
+
+  async function pausar(habito: Habito) {
+    setOcupado(habito.id);
+    setError("");
+
+    try {
+      await api.patch(`/habits/${habito.id}`, { active: !habito.active });
+      setAviso(habito.active ? "Hábito pausado" : "Hábito reactivado");
+      await cargar();
+    } catch (e) {
+      setError(
+        e instanceof ApiError ? e.message : "No se pudo cambiar el estado",
       );
     } finally {
       setOcupado(null);
@@ -190,21 +207,23 @@ function Contenido() {
         />
 
         <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
-          {categorias.map((categoria) => (
+          {prioridades.map((prioridad) => (
             <Chip
-              key={categoria}
-              label={categoria}
-              onClick={() => setFiltro(categoria)}
+              key={prioridad.valor}
+              label={prioridad.texto}
+              onClick={() => setFiltro(prioridad.valor)}
               sx={{
                 fontSize: 12.5,
-                fontWeight: filtro === categoria ? 700 : 500,
-                bgcolor: filtro === categoria ? "primary.main" : "background.paper",
+                fontWeight: filtro === prioridad.valor ? 700 : 500,
+                bgcolor:
+                  filtro === prioridad.valor ? "primary.main" : "background.paper",
                 color:
-                  filtro === categoria ? "background.paper" : "text.secondary",
+                  filtro === prioridad.valor ? "background.paper" : "text.secondary",
                 border: "1.3px solid",
-                borderColor: filtro === categoria ? "primary.main" : "divider",
+                borderColor:
+                  filtro === prioridad.valor ? "primary.main" : "divider",
                 "&:hover": {
-                  bgcolor: filtro === categoria ? "primary.dark" : "#FBF6EA",
+                  bgcolor: filtro === prioridad.valor ? "primary.dark" : "#FBF6EA",
                 },
               }}
             />
@@ -230,6 +249,7 @@ function Contenido() {
             ocupado={ocupado === habito.id}
             alAlternar={alternar}
             alBorrar={setPorBorrar}
+            alPausar={pausar}
           />
         ))}
 

@@ -9,21 +9,31 @@ import {
   CircularProgress,
   IconButton,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
+import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
+import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import type { Habito } from "../lib/types";
 
 const DIAS = ["L", "M", "M", "J", "V", "S", "D"];
+
+const coloresPrioridad: Record<string, { fondo: string; texto: string }> = {
+  alta: { fondo: "#EBD1D2", texto: "#4A0D18" },
+  media: { fondo: "#F7E7BC", texto: "#7A6132" },
+  baja: { fondo: "#EFE7DA", texto: "#A08663" },
+};
 
 type Props = {
   habito: Habito;
   ocupado: boolean;
   alAlternar: (habito: Habito) => void;
   alBorrar: (habito: Habito) => void;
+  alPausar: (habito: Habito) => void;
 };
 
 export default function TarjetaHabito({
@@ -31,8 +41,11 @@ export default function TarjetaHabito({
   ocupado,
   alAlternar,
   alBorrar,
+  alPausar,
 }: Props) {
   const cumplido = habito.completedToday;
+  const prioridad = habito.priority ?? "media";
+  const tonos = coloresPrioridad[prioridad] ?? coloresPrioridad.media;
 
   return (
     <Card sx={{ p: 2.5, display: "flex", flexDirection: "column", height: "100%" }}>
@@ -70,6 +83,32 @@ export default function TarjetaHabito({
             {[habito.category, habito.description].filter(Boolean).join(" · ") ||
               "Sin categoría"}
           </Typography>
+
+          <Stack direction="row" spacing={0.75} sx={{ mt: 1, flexWrap: "wrap", gap: 0.75 }}>
+            <Chip
+              label={`Prioridad ${prioridad}`}
+              size="small"
+              sx={{
+                height: 20,
+                fontSize: 10,
+                fontWeight: 700,
+                bgcolor: tonos.fondo,
+                color: tonos.texto,
+              }}
+            />
+            <Chip
+              label={habito.frequency ?? "diaria"}
+              size="small"
+              sx={{
+                height: 20,
+                fontSize: 10,
+                fontWeight: 500,
+                textTransform: "capitalize",
+                bgcolor: "background.default",
+                color: "#A08663",
+              }}
+            />
+          </Stack>
         </Box>
 
         <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
@@ -125,16 +164,34 @@ export default function TarjetaHabito({
         spacing={1}
         sx={{ justifyContent: "space-between", alignItems: "center" }}
       >
-        <Chip
-          label={habito.active ? "Activo" : "Pausado"}
-          size="small"
-          sx={{
-            fontSize: 11,
-            fontWeight: 600,
-            bgcolor: habito.active ? "#F7E7BC" : "background.default",
-            color: habito.active ? "secondary.dark" : "#A08663",
-          }}
-        />
+        <Tooltip
+          title={
+            habito.active
+              ? "Pausar: deja de contar en tus estadísticas"
+              : "Reactivar: vuelve a contar desde hoy"
+          }
+        >
+          <Chip
+            label={habito.active ? "Activo" : "Pausado"}
+            size="small"
+            clickable
+            disabled={ocupado}
+            onClick={() => alPausar(habito)}
+            icon={
+              habito.active ? (
+                <PauseRoundedIcon sx={{ fontSize: 14 }} />
+              ) : (
+                <PlayArrowRoundedIcon sx={{ fontSize: 14 }} />
+              )
+            }
+            sx={{
+              fontSize: 11,
+              fontWeight: 600,
+              bgcolor: habito.active ? "#F7E7BC" : "background.default",
+              color: habito.active ? "secondary.dark" : "#A08663",
+            }}
+          />
+        </Tooltip>
 
         <Stack direction="row" spacing={1}>
           <Button

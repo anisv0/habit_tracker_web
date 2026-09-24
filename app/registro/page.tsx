@@ -21,13 +21,19 @@ import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
 import PantallaAuth from "../components/PantallaAuth";
 import ListaBeneficios from "../components/ListaBeneficios";
+import RequisitosClave from "../components/RequisitosClave";
 import { useAuth } from "../lib/auth";
 import { ApiError } from "../lib/api";
 
 const esquema = z.object({
   name: z.string().trim().min(1, "El nombre es obligatorio"),
   email: z.email("Escribe un correo válido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  password: z
+    .string()
+    .min(8, "La contraseña debe tener al menos 8 caracteres")
+    .regex(/[A-Z]/, "Debe incluir al menos una letra mayúscula")
+    .regex(/[a-z]/, "Debe incluir al menos una letra minúscula")
+    .regex(/[0-9]/, "Debe incluir al menos un número"),
 });
 
 export default function RegistroPage() {
@@ -120,7 +126,7 @@ export default function RegistroPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               error={Boolean(errores.password)}
-              helperText={errores.password || "Mínimo 6 caracteres."}
+              helperText={errores.password}
               disabled={enviando}
               autoComplete="new-password"
               slotProps={{
@@ -145,6 +151,8 @@ export default function RegistroPage() {
                 },
               }}
             />
+
+            <RequisitosClave password={password} />
 
             <Button
               type="submit"

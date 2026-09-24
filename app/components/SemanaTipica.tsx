@@ -23,29 +23,30 @@ const nombres = [
 const iniciales = ["D", "L", "M", "M", "J", "V", "S"];
 
 export default function SemanaTipica({ dias, totalHabitos }: Props) {
-  const acumulado = iniciales.map(() => ({ suma: 0, cantidad: 0 }));
+  const cumplidos = [0, 0, 0, 0, 0, 0, 0];
+  const cantidad = [0, 0, 0, 0, 0, 0, 0];
 
   for (const dia of dias) {
-    const indice = new Date(`${dia.date}T12:00:00.000Z`).getUTCDay();
-    acumulado[indice].suma += dia.completed;
-    acumulado[indice].cantidad += 1;
+    const numeroDia = new Date(`${dia.date}T12:00:00.000Z`).getUTCDay();
+    cumplidos[numeroDia] += dia.completed;
+    cantidad[numeroDia] += 1;
   }
 
-  const porcentajes = acumulado.map(({ suma, cantidad }) => {
-    if (cantidad === 0 || totalHabitos === 0) return 0;
-    return Math.round((suma / cantidad / totalHabitos) * 100);
+  const porcentajes = cumplidos.map((suma, numeroDia) => {
+    const posibles = cantidad[numeroDia] * totalHabitos;
+    return posibles === 0 ? 0 : Math.round((suma / posibles) * 100);
   });
 
   let mejor = 0;
   let peor = 0;
 
-  for (let i = 1; i < porcentajes.length; i++) {
-    if (porcentajes[i] > porcentajes[mejor]) {
-      mejor = i;
+  for (let numeroDia = 1; numeroDia < 7; numeroDia++) {
+    if (porcentajes[numeroDia] > porcentajes[mejor]) {
+      mejor = numeroDia;
     }
 
-    if (porcentajes[i] < porcentajes[peor]) {
-      peor = i;
+    if (porcentajes[numeroDia] < porcentajes[peor]) {
+      peor = numeroDia;
     }
   }
 
@@ -80,7 +81,7 @@ export default function SemanaTipica({ dias, totalHabitos }: Props) {
                 sx={{
                   width: "100%",
                   height: `${Math.max(valor, 2)}%`,
-                  borderRadius: 2,
+                  borderRadius: "8px 8px 0 0",
                   bgcolor:
                     hayDatos && indice === mejor ? "secondary.main" : "#F7E7BC",
                   transition: "height .3s",

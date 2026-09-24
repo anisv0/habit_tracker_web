@@ -92,7 +92,7 @@ export default function GraficaMes({ dias }: Props) {
                 sx={{
                   width: "100%",
                   height: `${Math.max((dia.completed / maximo) * 100, 3)}%`,
-                  borderRadius: 1,
+                  borderRadius: "4px 4px 0 0",
                   bgcolor:
                     dia.completed === 0
                       ? "background.default"

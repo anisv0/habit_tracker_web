@@ -39,6 +39,10 @@ export default function EditarHabitoPage({
       description: valores.description,
       category: valores.category,
       color: valores.color,
+      frequency: valores.frequency,
+      priority: valores.priority,
+      startDate: valores.startDate,
+      endDate: valores.endDate || undefined,
     });
 
     router.push("/habitos?editado=1");
@@ -73,6 +77,10 @@ export default function EditarHabitoPage({
           description: habito.description ?? "",
           category: habito.category ?? "",
           color: habito.color,
+          frequency: habito.frequency ?? "diaria",
+          priority: habito.priority ?? "media",
+          startDate: (habito.startDate ?? habito.createdAt).slice(0, 10),
+          endDate: habito.endDate ? habito.endDate.slice(0, 10) : "",
         }}
         alEnviar={guardar}
         alCancelar={() => router.push("/habitos")}

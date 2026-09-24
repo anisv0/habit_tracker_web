@@ -12,6 +12,10 @@ export type Habito = {
   color: string;
   icon: string;
   active: boolean;
+  frequency: string;
+  priority: string;
+  startDate: string | null;
+  endDate: string | null;
   createdAt: string;
   updatedAt: string;
   userId: string;
@@ -40,6 +44,7 @@ export type Resumen = {
   percentPrevMonth: number;
   last7Days: { date: string; completed: number }[];
   last30Days: { date: string; completed: number }[];
+  weeklyTrend: { week: string; percent: number }[];
 };
 
 export type RespuestaAuth = {

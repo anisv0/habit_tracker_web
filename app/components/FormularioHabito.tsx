@@ -9,6 +9,7 @@ import {
   Card,
   Chip,
   CircularProgress,
+  Collapse,
   Divider,
   IconButton,
   Stack,
@@ -18,6 +19,7 @@ import {
 } from "@mui/material";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import VistaPreviaHabito from "./VistaPreviaHabito";
 
 export type ValoresHabito = {
@@ -25,6 +27,10 @@ export type ValoresHabito = {
   description: string;
   category: string;
   color: string;
+  frequency: string;
+  priority: string;
+  startDate: string;
+  endDate: string;
 };
 
 type Props = {
@@ -48,16 +54,45 @@ const categorias = ["Salud", "Estudio", "Personal"];
 
 const colores = ["#4A0D18", "#6E1A22", "#C6A15B", "#A8863F", "#6B5744"];
 
-const esquema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(3, "El nombre debe tener al menos 3 caracteres")
-    .max(50, "El nombre no puede pasar de 50 caracteres"),
-  description: z.string().trim().max(200, "La descripción es muy larga"),
-  category: z.string().trim().max(30, "La categoría es muy larga"),
-  color: z.string(),
-});
+const frecuencias = [
+  { valor: "diaria", texto: "Diaria" },
+  { valor: "semanal", texto: "Semanal" },
+  { valor: "personalizada", texto: "Personalizada" },
+];
+
+const prioridades = [
+  { valor: "alta", texto: "Alta" },
+  { valor: "media", texto: "Media" },
+  { valor: "baja", texto: "Baja" },
+];
+
+function hoyTexto() {
+  const hoy = new Date();
+  const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+  const dia = String(hoy.getDate()).padStart(2, "0");
+
+  return `${hoy.getFullYear()}-${mes}-${dia}`;
+}
+
+const esquema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(3, "El nombre debe tener al menos 3 caracteres")
+      .max(50, "El nombre no puede pasar de 50 caracteres"),
+    description: z.string().trim().max(200, "La descripción es muy larga"),
+    category: z.string().trim().max(30, "La categoría es muy larga"),
+    color: z.string(),
+    frequency: z.string(),
+    priority: z.string(),
+    startDate: z.string().min(1, "La fecha de inicio es obligatoria"),
+    endDate: z.string(),
+  })
+  .refine(
+    (datos) => datos.endDate === "" || datos.endDate >= datos.startDate,
+    { message: "La fecha de fin no puede ser anterior al inicio", path: ["endDate"] },
+  );
 
 export default function FormularioHabito({
   titulo,
@@ -72,6 +107,12 @@ export default function FormularioHabito({
   const [description, setDescription] = useState(valorInicial?.description ?? "");
   const [category, setCategory] = useState(valorInicial?.category ?? "");
   const [color, setColor] = useState(valorInicial?.color ?? colores[0]);
+  const [frequency, setFrequency] = useState(valorInicial?.frequency ?? "diaria");
+  const [priority, setPriority] = useState(valorInicial?.priority ?? "media");
+  const [startDate, setStartDate] = useState(valorInicial?.startDate ?? hoyTexto());
+  const [endDate, setEndDate] = useState(valorInicial?.endDate ?? "");
+
+  const [verMas, setVerMas] = useState(Boolean(valorInicial));
 
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [errorGeneral, setErrorGeneral] = useState("");
@@ -81,7 +122,16 @@ export default function FormularioHabito({
     evento.preventDefault();
     setErrorGeneral("");
 
-    const resultado = esquema.safeParse({ name, description, category, color });
+    const resultado = esquema.safeParse({
+      name,
+      description,
+      category,
+      color,
+      frequency,
+      priority,
+      startDate,
+      endDate,
+    });
 
     if (!resultado.success) {
       const nuevos: Record<string, string> = {};
@@ -202,73 +252,6 @@ export default function FormularioHabito({
                 mb: 1.5,
               }}
             >
-              DESCRIPCIÓN · OPCIONAL
-            </Typography>
-
-            <TextField
-              placeholder="Tres veces por semana"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              error={Boolean(errores.description)}
-              helperText={errores.description}
-              disabled={enviando}
-              multiline
-              minRows={2}
-            />
-          </Box>
-
-          <Box>
-            <Typography
-              sx={{
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: 1.8,
-                color: "#A08663",
-                mb: 1.5,
-              }}
-            >
-              CATEGORÍA · OPCIONAL
-            </Typography>
-
-            <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1, mb: 2 }}>
-              {categorias.map((texto) => (
-                <Chip
-                  key={texto}
-                  label={texto}
-                  onClick={() => setCategory(category === texto ? "" : texto)}
-                  sx={{
-                    fontSize: 12,
-                    fontWeight: category === texto ? 700 : 500,
-                    bgcolor: category === texto ? "#EBD1D2" : "background.paper",
-                    color: category === texto ? "primary.main" : "text.secondary",
-                    border: "1.3px solid",
-                    borderColor: category === texto ? "#EBD1D2" : "divider",
-                  }}
-                />
-              ))}
-            </Stack>
-
-            <TextField
-              placeholder="O escribe una categoría propia"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              error={Boolean(errores.category)}
-              helperText={errores.category}
-              disabled={enviando}
-              size="small"
-            />
-          </Box>
-
-          <Box>
-            <Typography
-              sx={{
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: 1.8,
-                color: "#A08663",
-                mb: 1.5,
-              }}
-            >
               COLOR
             </Typography>
 
@@ -301,6 +284,213 @@ export default function FormularioHabito({
               ))}
             </Stack>
           </Box>
+
+          <Button
+            onClick={() => setVerMas((abierto) => !abierto)}
+            startIcon={
+              <ExpandMoreRoundedIcon
+                sx={{
+                  transition: "transform .2s",
+                  transform: verMas ? "rotate(180deg)" : "none",
+                }}
+              />
+            }
+            sx={{
+              alignSelf: "flex-start",
+              fontSize: 13,
+              color: "secondary.dark",
+              px: 1,
+            }}
+          >
+            {verMas ? "Menos opciones" : "Más opciones"}
+          </Button>
+
+          <Collapse in={verMas} unmountOnExit>
+            <Stack spacing={3.5}>
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: 1.8,
+                  color: "#A08663",
+                  mb: 1.5,
+                }}
+              >
+                DESCRIPCIÓN · OPCIONAL
+              </Typography>
+
+              <TextField
+                placeholder="Tres veces por semana"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                error={Boolean(errores.description)}
+                helperText={errores.description}
+                disabled={enviando}
+                multiline
+                minRows={2}
+              />
+            </Box>
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: 1.8,
+                  color: "#A08663",
+                  mb: 1.5,
+                }}
+              >
+                CATEGORÍA · OPCIONAL
+              </Typography>
+
+              <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1, mb: 2 }}>
+                {categorias.map((texto) => (
+                  <Chip
+                    key={texto}
+                    label={texto}
+                    onClick={() => setCategory(category === texto ? "" : texto)}
+                    sx={{
+                      fontSize: 12,
+                      fontWeight: category === texto ? 700 : 500,
+                      bgcolor: category === texto ? "#EBD1D2" : "background.paper",
+                      color: category === texto ? "primary.main" : "text.secondary",
+                      border: "1.3px solid",
+                      borderColor: category === texto ? "#EBD1D2" : "divider",
+                    }}
+                  />
+                ))}
+              </Stack>
+
+              <TextField
+                placeholder="O escribe una categoría propia"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                error={Boolean(errores.category)}
+                helperText={errores.category}
+                disabled={enviando}
+                size="small"
+              />
+            </Box>
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: 1.8,
+                  color: "#A08663",
+                  mb: 1.5,
+                }}
+              >
+                FRECUENCIA
+              </Typography>
+
+              <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
+                {frecuencias.map((opcion) => (
+                  <Chip
+                    key={opcion.valor}
+                    label={opcion.texto}
+                    onClick={() => setFrequency(opcion.valor)}
+                    sx={{
+                      fontSize: 12,
+                      fontWeight: frequency === opcion.valor ? 700 : 500,
+                      bgcolor:
+                        frequency === opcion.valor ? "#EBD1D2" : "background.paper",
+                      color:
+                        frequency === opcion.valor ? "primary.main" : "text.secondary",
+                      border: "1.3px solid",
+                      borderColor:
+                        frequency === opcion.valor ? "#EBD1D2" : "divider",
+                    }}
+                  />
+                ))}
+              </Stack>
+            </Box>
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: 1.8,
+                  color: "#A08663",
+                  mb: 1.5,
+                }}
+              >
+                PRIORIDAD
+              </Typography>
+
+              <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
+                {prioridades.map((opcion) => (
+                  <Chip
+                    key={opcion.valor}
+                    label={opcion.texto}
+                    onClick={() => setPriority(opcion.valor)}
+                    sx={{
+                      fontSize: 12,
+                      fontWeight: priority === opcion.valor ? 700 : 500,
+                      bgcolor:
+                        priority === opcion.valor ? "#F7E7BC" : "background.paper",
+                      color:
+                        priority === opcion.valor ? "secondary.dark" : "text.secondary",
+                      border: "1.3px solid",
+                      borderColor:
+                        priority === opcion.valor ? "secondary.main" : "divider",
+                    }}
+                  />
+                ))}
+              </Stack>
+
+              <Typography sx={{ fontSize: 11, color: "#A08663", mt: 1.5 }}>
+                Los de prioridad alta aparecen primero en tu lista.
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: 1.8,
+                  color: "#A08663",
+                  mb: 1.5,
+                }}
+              >
+                FECHAS
+              </Typography>
+
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                <TextField
+                  label="Inicio"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  error={Boolean(errores.startDate)}
+                  helperText={errores.startDate}
+                  disabled={enviando}
+                  size="small"
+                  fullWidth
+                  slotProps={{ inputLabel: { shrink: true } }}
+                />
+
+                <TextField
+                  label="Fin · opcional"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  error={Boolean(errores.endDate)}
+                  helperText={errores.endDate}
+                  disabled={enviando}
+                  size="small"
+                  fullWidth
+                  slotProps={{ inputLabel: { shrink: true } }}
+                />
+              </Stack>
+            </Box>
+            </Stack>
+          </Collapse>
 
           <Divider />
 

@@ -16,6 +16,10 @@ export default function NuevoHabitoPage() {
       description: valores.description || undefined,
       category: valores.category || undefined,
       color: valores.color,
+      frequency: valores.frequency,
+      priority: valores.priority,
+      startDate: valores.startDate,
+      endDate: valores.endDate || undefined,
     });
 
     router.push("/habitos?creado=1");
